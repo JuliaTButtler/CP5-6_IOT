@@ -1,8 +1,34 @@
-# CP5/6_IOT
-
 # RAG — Disruptive Architectures
 
-## Guia para estudo e apresentação
+Sistema de **Retrieval-Augmented Generation (RAG)** que responde perguntas sobre a disciplina Disruptive Architectures usando como base de conhecimento o [site oficial da disciplina](https://arnaldojr.github.io/DisruptiveArchitectures/). As respostas são geradas pelo Gemini a partir dos trechos recuperados do site e vêm acompanhadas das fontes.
+
+[![Abrir no Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/JuliaTButtler/CP5-6_IOT/blob/main/RAG_Disruptive_Architecturesd3.ipynb)
+
+## Arquivos
+
+- `RAG_Disruptive_Architecturesd3.ipynb`: notebook com todo o código e os resultados da última execução.
+- `README.md`: esta página, com o guia de estudo e apresentação do projeto.
+
+## Como executar no Google Colab
+
+1. Abra o notebook no Colab (botão acima, ou **Arquivo → Fazer upload de notebook**).
+2. Crie uma chave da API do Gemini em [Google AI Studio](https://aistudio.google.com/apikey).
+3. No Colab, clique no ícone de chave (🔑) na barra lateral, adicione um secret chamado `GEMINI_API_KEY` com a chave e ative **Acesso ao notebook**.
+4. Execute **Ambiente de execução → Reiniciar e executar tudo**.
+
+A geração dos embeddings leva alguns minutos. Se a cota gratuita da API for atingida (erro 429), o notebook espera 60 segundos e tenta novamente.
+
+Para executar localmente, copie `.env.example` para `.env` e preencha a chave. O `.env` é ignorado pelo git.
+
+## Resultados da última execução
+
+- 28 páginas coletadas do site, divididas em 198 chunks de até 1000 caracteres (overlap de 200).
+- Embeddings com 3072 dimensões (`gemini-embedding-001`), recuperação dos 5 chunks mais similares por similaridade de cosseno.
+- Testes qualitativos com 4 perguntas: informação direta, paráfrase, informação ausente e pergunta ambígua. Os quatro tiveram o comportamento esperado.
+
+---
+
+# Guia para estudo e apresentação
 
 ### 1. O que é o projeto?
 
@@ -266,7 +292,7 @@ No nosso projeto:
 
 Depois de dividir as 28 páginas, obtivemos:
 
-**207 chunks**
+**198 chunks**
 
 Cada chunk possui:
 
@@ -286,7 +312,7 @@ Exemplo conceitual:
 
 Agora temos uma base muito mais granular:
 
-**28 documentos → 207 chunks**
+**28 documentos → 198 chunks**
 
 ---
 
@@ -352,7 +378,7 @@ config=types.EmbedContentConfig(task_type="RETRIEVAL_DOCUMENT")
 
 Então:
 
-**207 chunks → 207 embeddings**
+**198 chunks → 198 embeddings**
 
 Esses embeddings formam nosso índice.
 
@@ -360,7 +386,7 @@ Esses embeddings formam nosso índice.
 
 # 14. Por que usamos processamento em lotes?
 
-Temos 207 chunks.
+Temos 198 chunks.
 
 Em vez de fazer uma chamada à API para cada chunk individualmente, enviamos os conteúdos em lotes.
 
@@ -370,8 +396,7 @@ Por exemplo:
 Lote 1 → 50 chunks
 Lote 2 → 50 chunks
 Lote 3 → 50 chunks
-Lote 4 → 50 chunks
-Lote 5 → 7 chunks
+Lote 4 → 48 chunks
 ```
 
 Isso reduz a quantidade de chamadas e torna o processo mais eficiente.
@@ -380,11 +405,11 @@ Também implementamos tratamento para erro de quota `429`.
 
 Quando a API informa que a quota foi temporariamente excedida, o programa espera e tenta novamente.
 
-Isso foi importante porque a geração dos 207 embeddings encontrou alguns limites temporários.
+Isso foi importante porque a geração dos 198 embeddings encontrou alguns limites temporários.
 
 No final:
 
-**207/207 processados**
+**198/198 processados**
 
 e cada embedding possui:
 
@@ -459,7 +484,7 @@ Agora temos:
 
 e
 
-**207 vetores dos chunks**
+**198 vetores dos chunks**
 
 ---
 
@@ -541,7 +566,7 @@ Ou seja:
 Por exemplo:
 
 ```text
-207 chunks
+198 chunks
    ↓
 comparação
    ↓
@@ -554,7 +579,7 @@ Esses cinco chunks serão usados como contexto para o modelo generativo.
 
 ---
 
-# 21. Por que não recuperar os 207?
+# 21. Por que não recuperar os 198?
 
 Porque não precisamos mandar todo o site para o modelo.
 
@@ -1024,7 +1049,7 @@ para todas as páginas, criamos uma função que divide automaticamente cada doc
 
 Isso permite transformar:
 
-**28 documentos → 207 chunks**
+**28 documentos → 198 chunks**
 
 sem precisar preparar manualmente cada trecho.
 
@@ -1036,7 +1061,7 @@ Isso também se relaciona ao desafio de chunking automático apresentado no pró
 
 Também foi uma adaptação prática.
 
-Temos 207 chunks.
+Temos 198 chunks.
 
 Fazer uma chamada separada para cada chunk seria desnecessariamente pesado.
 
