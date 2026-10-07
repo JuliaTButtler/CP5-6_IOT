@@ -399,3 +399,11 @@ FodyWeavers.xsd
 
 # JetBrains Rider
 *.sln.iml
+
+# Segredos (chave da API do Gemini)
+.env
+
+# Jupyter / Python
+.ipynb_checkpoints/
+.venv/
+venv/
